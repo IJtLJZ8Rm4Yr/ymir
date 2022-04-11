@@ -41,6 +41,7 @@ class Settings(BaseSettings):
 
     # redis
     BACKEND_REDIS_URL: str = "redis://redis:6379/0"
+    BACKEND_REDIS_CHANNEL: str = "task_status"
 
     # graph
     MAX_HOPS: int = 5

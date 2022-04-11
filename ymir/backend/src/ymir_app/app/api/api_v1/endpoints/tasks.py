@@ -3,7 +3,7 @@ import enum
 import json
 from typing import Any, Dict, List, Optional, Union, Tuple
 
-from fastapi import APIRouter, Depends, Path, Query
+from fastapi import APIRouter, Depends, Path, Query, Response
 from fastapi.encoders import jsonable_encoder
 from fastapi.logger import logger
 from requests.exceptions import ConnectionError, HTTPError, Timeout
@@ -30,12 +30,14 @@ from app.constants.state import (
     ResultType,
     ResultState,
 )
+from app.config import settings
 from app.models.task import Task
 from app.utils.clickhouse import YmirClickHouse
 from app.utils.graph import GraphClient
 from app.utils.timeutil import convert_datetime_to_timestamp
 from app.utils.ymir_controller import ControllerClient, gen_task_hash
 from app.utils.ymir_viz import VizClient, ModelMetaData, DatasetMetaData
+from app.libs.redis_stream import RedisStream
 from common_utils.labels import UserLabels
 
 router = APIRouter()
@@ -576,3 +578,17 @@ def is_obsolete_message(last_update_time: Union[float, int], msg_time: Union[flo
 
 def get_default_record_name(task_hash: str, task_name: str) -> str:
     return f"{task_name}_{task_hash[-6:]}"
+
+
+@router.post(
+    "/events",
+    response_model=schemas.TaskOut,
+    dependencies=[Depends(deps.api_key_security)],
+)
+async def save_task_update_to_redis_stream(*, task_event: schemas.TaskUpdateStatus) -> Response:
+    """
+    Save task event to Redis Stream
+    """
+    redis_stream = RedisStream(settings.BACKEND_REDIS_URL)
+    await redis_stream.publish(settings.BACKEND_REDIS_CHANNEL, task_event.json())
+    return Response(status_code=204)

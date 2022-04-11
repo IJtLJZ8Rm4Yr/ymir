@@ -1,4 +1,6 @@
+import asyncio
 import logging
+from functools import partial
 
 import aioredis
 import sentry_sdk
@@ -11,6 +13,7 @@ from fastapi.openapi.docs import (
 from fastapi.staticfiles import StaticFiles
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
+from fastapi_socketio import SocketManager
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 from starlette.exceptions import HTTPException
 from starlette.middleware.cors import CORSMiddleware
@@ -19,6 +22,8 @@ from starlette.responses import HTMLResponse
 from app.api.api_v1.api import api_router
 from app.api.errors import errors
 from app.config import settings
+from app.libs.redis_stream import RedisStream
+from app.libs.tasks import update_task_status
 
 app = FastAPI(
     docs_url=None,
@@ -40,6 +45,8 @@ if settings.BACKEND_CORS_ORIGINS:
         allow_headers=["*"],
     )
 
+socket_manager = SocketManager(app=app)
+
 
 @app.get("/docs", include_in_schema=False)
 async def custom_swagger_ui_html() -> HTMLResponse:
@@ -57,10 +64,20 @@ async def swagger_ui_redirect() -> HTMLResponse:
     return get_swagger_ui_oauth2_redirect_html()
 
 
+redis_stream = RedisStream(settings.BACKEND_REDIS_URL)
+
+
 @app.on_event("startup")
 async def startup() -> None:
     redis = aioredis.from_url(settings.BACKEND_REDIS_URL, encoding="utf8", decode_responses=True)
     FastAPICache.init(RedisBackend(redis), prefix="ymir-app-cache")
+    update_task_status_ = partial(update_task_status, app)
+    asyncio.create_task(redis_stream.consume(settings.BACKEND_REDIS_CHANNEL, update_task_status_))
+
+
+@app.on_event("shutdown")
+async def shutdown() -> None:
+    asyncio.create_task(redis_stream.disconnect())
 
 
 app.include_router(api_router, prefix=settings.API_V1_STR)

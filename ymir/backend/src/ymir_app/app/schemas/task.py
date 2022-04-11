@@ -182,6 +182,7 @@ class TaskTerminate(BaseModel):
 
 
 class TaskUpdateStatus(BaseModel):
+    user_id: int
     hash: str
     timestamp: float
     percent: Optional[float] = 0
