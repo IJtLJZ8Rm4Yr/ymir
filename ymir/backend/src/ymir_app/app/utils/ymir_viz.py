@@ -165,6 +165,7 @@ class EvaluationScore(BaseModel):
     fn: int
     fp: int
     tp: int
+    pr_curve: List[Dict]
 
 
 class VizDatasetEvaluation(BaseModel):
