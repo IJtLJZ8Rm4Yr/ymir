@@ -34,16 +34,19 @@ class TestAsset:
             "asset_id": asset_id,
             "pred": [
                 {
-                    "box": random_lower_string(10),
+                    "box": {},
                     "class_id": random.randint(1, 20),
                     "cm": 1,
+                    "tags": {},
                 }
             ],
+            "cks": [],
             "gt": [
                 {
-                    "box": random_lower_string(10),
+                    "box": {},
                     "class_id": random.randint(1, 20),
                     "cm": 1,
+                    "tags": {},
                 }
             ],
             "class_ids": list(range(1, 20)),
@@ -55,8 +58,15 @@ class TestAsset:
             },
         }
 
-        m.convert_class_id_to_keyword(res, mock_user_labels, ["class_id", "class_ids"])
-        A = m.ViewerAsset.parse_obj(res)
+        A = m.ViewerAsset(
+            res["asset_id"],
+            res["class_ids"],
+            res["metadata"],
+            res["gt"],
+            res["pred"],
+            res["cks"],
+            user_labels=mock_user_labels,
+        )
         assert A.url == m.get_asset_url(asset_id)
 
 
@@ -69,16 +79,18 @@ class TestAssets:
                     "class_ids": [random.randint(1, 80) for _ in range(10)],
                     "pred": [
                         {
-                            "box": random_lower_string(10),
+                            "box": {},
                             "class_id": random.randint(1, 20),
                             "cm": 1,
+                            "tags": {},
                         }
                     ],
                     "gt": [
                         {
-                            "box": random_lower_string(10),
+                            "box": {},
                             "class_id": random.randint(1, 20),
                             "cm": 1,
+                            "tags": {},
                         }
                     ],
                     "metadata": {
@@ -87,12 +99,12 @@ class TestAssets:
                         "image_channels": random.randint(1, 3),
                         "timestamp": {"start": time.time()},
                     },
+                    "cks": [],
                 }
             ],
             "total_assets_count": 124,
         }
-        m.convert_class_id_to_keyword(res, mock_user_labels, ["class_id", "class_ids"])
-        AS = m.ViewerAssetsResponse.parse_obj(res)
+        AS = m.ViewerAssetsResponse(res["total_assets_count"], res["elements"], user_labels=mock_user_labels)
         assert len(AS.items) == len(res["elements"])
 
 
@@ -184,16 +196,18 @@ class TestVizClient:
                     "class_ids": [random.randint(1, 80) for _ in range(10)],
                     "pred": [
                         {
-                            "box": random_lower_string(10),
+                            "box": {},
                             "class_id": random.randint(1, 20),
                             "cm": 1,
+                            "tags": {},
                         }
                     ],
                     "gt": [
                         {
-                            "box": random_lower_string(10),
+                            "box": {},
                             "class_id": random.randint(1, 20),
                             "cm": 1,
+                            "tags": {},
                         }
                     ],
                     "metadata": {
@@ -202,6 +216,7 @@ class TestVizClient:
                         "image_channels": random.randint(1, 3),
                         "timestamp": {"start": time.time()},
                     },
+                    "cks": [],
                 }
             ],
             "total_assets_count": random.randint(1000, 2000),
