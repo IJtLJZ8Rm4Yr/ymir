@@ -190,9 +190,12 @@ class TaskResult:
     def model_info(self) -> Optional[Dict]:
         try:
             result = self.viz.get_model_info(self.task_hash)
-        except (ModelNotReady, ModelNotFound):
-            logger.exception("[update task] failed to get model_info: model not ready")
+        except ModelNotFound:
+            logger.exception("[update task] failed to get model_info: model not found")
             return None
+        except ModelNotReady:
+            logger.exception("[update task] failed to get model_info: model not ready. Try again later")
+            raise FailedToUpdateTaskStatusTemporally()
         except Exception:
             logger.exception("[update task] failed to get model_info: unknown error")
             return None

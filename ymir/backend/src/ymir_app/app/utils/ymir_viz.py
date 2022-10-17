@@ -11,6 +11,7 @@ from app.api.errors.errors import (
     DatasetEvaluationNotFound,
     DatasetEvaluationMissingAnnotation,
     DatasetIndexNotReady,
+    ModelNotReady,
     ModelNotFound,
     FailedToParseVizResponse,
     VizError,
@@ -477,9 +478,13 @@ class VizClient:
         logger.error("[viewer] error response: %s", resp.content)
         if resp.status_code == 400:
             error_code = resp.json()["code"]
+            msg = resp.json()["msg"]
             if error_code == VizErrorCode.MODEL_NOT_EXISTS:
                 logger.error("[viewer] model not found")
                 raise ModelNotFound()
+            if msg == "invalid model":
+                logger.error("[viewer] invliad model, need retry")
+                raise ModelNotReady()
             elif error_code == VizErrorCode.DATASET_EVALUATION_NOT_EXISTS:
                 logger.error("[viewer] dataset evaluation not found")
                 raise DatasetEvaluationNotFound()
