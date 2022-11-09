@@ -241,11 +241,11 @@ class TaskCreate(TaskBase):
 
         if self.parameters.typed_datasets:
             fillin_dataset_hashes(datasets_getter, self.parameters.typed_datasets)
-        if self.parameters.merge_strategy:
-            self.parameters.typed_datasets.sort(
-                key=attrgetter("create_datetime"),
-                reverse=(self.parameters.merge_strategy == MergeStrategy.prefer_newest),
-            )
+            if self.parameters.merge_strategy:
+                self.parameters.typed_datasets.sort(
+                    key=attrgetter("create_datetime"),
+                    reverse=(self.parameters.merge_strategy == MergeStrategy.prefer_newest),
+                )
 
         if self.parameters.typed_labels:
             fillin_label_ids(labels_getter, self.parameters.typed_labels)
