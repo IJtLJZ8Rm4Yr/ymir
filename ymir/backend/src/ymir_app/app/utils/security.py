@@ -1,6 +1,7 @@
 import hashlib
 from datetime import datetime, timedelta
 from typing import Any, Dict, Optional, Union
+import uuid
 
 from jose import jwt
 from passlib.context import CryptContext
@@ -58,3 +59,7 @@ def generate_password_reset_token(email: str) -> str:
 
 def verify_api_key(api_key: str) -> bool:
     return api_key == settings.APP_API_KEY
+
+
+def generate_uuid() -> str:
+    return uuid.uuid4().hex
