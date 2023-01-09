@@ -23,7 +23,7 @@ ARG PIP_SOURCE=https://pypi.org/simple
 
 RUN apt-get update \
   && apt-get install -y curl git vim \
-  && apt-get install -y --no-install-recommends python3-pip python3-dev mysql-client \
+  && apt-get install -y --no-install-recommends python3-pip python3-dev mysql-client gcc \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* \
   && cd /usr/local/bin \
@@ -41,6 +41,7 @@ RUN pip3 install -r command-requirements.txt -i ${PIP_SOURCE}
 
 COPY ./command /command
 RUN pip3 install -U /command -i ${PIP_SOURCE}
+RUN apt-get purge -y --auto-remove gcc
 
 COPY ./backend/src /app
 
