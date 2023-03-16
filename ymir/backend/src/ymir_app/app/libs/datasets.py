@@ -14,7 +14,7 @@ from app.api.errors.errors import (
     PrematureDatasets,
 )
 from app.config import settings
-from app.constants.state import ResultState, TaskState
+from app.constants.state import ResultState, TaskState, FinalStates
 from app.utils.files import FailedToDownload, locate_import_paths, prepare_downloaded_paths, InvalidFileStructure
 from app.utils.ymir_controller import ControllerClient, gen_user_hash, gen_repo_hash
 from app.schemas.common import ImportStrategy
@@ -148,3 +148,10 @@ def ensure_datasets_are_ready(db: Session, dataset_ids: List[int]) -> List[model
     if not all(dataset.result_state == ResultState.ready for dataset in datasets):
         raise PrematureDatasets()
     return datasets
+
+
+def is_finished_dataset(dataset_info: Dict) -> bool:
+    task = dataset_info.get("related_task")
+    if not task:
+        return False
+    return task.get("state") in FinalStates

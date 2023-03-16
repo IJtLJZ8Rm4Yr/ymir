@@ -21,7 +21,7 @@ from app.config import settings
 from app.constants.state import TaskState, TaskType, ResultState, ObjectType
 from app.utils.ymir_controller import ControllerClient
 from app.utils.ymir_viz import VizClient
-from app.libs.datasets import import_dataset_in_background, ensure_datasets_are_ready
+from app.libs.datasets import import_dataset_in_background, ensure_datasets_are_ready, is_finished_dataset
 from app.libs.tasks import create_single_task
 from common_utils.labels import UserLabels
 
@@ -296,7 +296,7 @@ def get_dataset(
         keyword_ids = user_labels.id_for_names(names=keywords, raise_if_unknown=True)[0]
 
     dataset_info = schemas.dataset.DatasetInDB.from_orm(dataset).dict()
-    if verbose_info or keyword_ids:
+    if is_finished_dataset(dataset_info) and (verbose_info or keyword_ids):
         viz_client.initialize(
             user_id=current_user.id,
             project_id=dataset.project_id,
