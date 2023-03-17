@@ -83,6 +83,16 @@ class FailedtoCreateTask(ControllerError):
     message = "Failed to Create Task via Controller"
 
 
+class FailedtoCreateLabelTask(ControllerError):
+    code = ctl_error_codes.INVOKER_LABEL_TASK_UNKNOWN_ERROR
+    message = "Failed to Create Segmentation Label Task"
+
+
+class FailedtoCreateLabelTaskNetworkError(ControllerError):
+    code = ctl_error_codes.INVOKER_LABEL_TASK_NETWORK_ERROR
+    message = "Failed to Create Segmentation Label Task"
+
+
 class FailedtoCreateSegLabelTask(ControllerError):
     code = error_codes.TASK_SEGMENTATION_LABEL_NOT_SUPPORTED
     message = "Failed to Create Segmentation Label Task"
