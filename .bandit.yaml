@@ -1,4 +1,0 @@
-skips: ['B110', 'B311', 'B404', 'B603']
-
-assert_used:
-  skips: ['ymir/backend/src/pymir-app/tests/test_*.py']
