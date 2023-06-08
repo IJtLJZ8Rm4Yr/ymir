@@ -1,0 +1,8 @@
+[flake8]
+max-line-length = 120
+max-complexity = 18
+# Enable flake8-logging-format
+enable-extensions = G
+ignore = D10, D100, D101, D103, B008, PT022, E501, G200, G002, W503, B902, PT011, G004, F841, PT003, PT004, B006, E203, C408, PT009, T001, PT018, B007, I250, C403, G001, B010, E402, C400
+ban-relative-import = true
+per-file-ignores = __init__.py:F401
